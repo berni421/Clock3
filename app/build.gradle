@@ -1,0 +1,80 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.kapt'
+}
+
+android {
+    compileSdkVersion 33
+
+    namespace "com.elbourn.android.clock3"
+
+    defaultConfig {
+        applicationId "com.elbourn.android.clock3"
+        minSdk 28
+        targetSdk 33
+        versionCode 17
+        versionName "v0.1.2"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    packagingOptions {
+        exclude "META-INF/atomicfu.kotlin_module"
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation libs.androidx.core.ktx
+
+    // Kotlin components
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+
+    implementation libs.androidx.activity.ktx
+
+    // Lifecycle components
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+
+    // Use to implement support for interactions from the Wearables to Phones
+    implementation("androidx.wear:wear-phone-interactions:1.0.1")
+    // Use to implement support for interactions between the Wearables and Phones
+    implementation("androidx.wear:wear-remote-interactions:1.0.0")
+
+
+    // Material components
+    implementation libs.android.material
+
+    // Wear libraries
+    implementation libs.androidx.wear
+
+    // Watch face specific libraries
+    implementation libs.wear.watchface.complications.data
+    implementation libs.wear.watchface.complications.data.source
+
+    implementation libs.wear.watchface
+    implementation libs.wear.watchface.client
+    implementation libs.wear.watchface.complications.rendering
+    implementation libs.wear.watchface.data
+    implementation libs.wear.watchface.editor
+    implementation libs.wear.watchface.style
+}
