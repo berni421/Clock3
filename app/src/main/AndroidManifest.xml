@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-<!--    package="com.elbourn.android.clock4">-->
-
-    <!-- Required for complications to receive complication data and open the provider chooser. -->
     <uses-feature android:name="android.hardware.type.watch" />
-
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"  />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-<!--    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />-->
-<!--    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED" />-->
-<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/clock3"
@@ -25,7 +15,7 @@
         <service
             android:name=".TheWatchFaceService"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="Clock3 Watch Face"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
@@ -40,9 +30,6 @@
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
-<!--            <meta-data-->
-<!--                android:name="com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"-->
-<!--                android:value="false" />-->
         </service>
     </application>
 </manifest>

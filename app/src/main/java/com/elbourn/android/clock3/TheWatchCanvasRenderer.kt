@@ -126,36 +126,18 @@ class TheWatchCanvasRenderer(
     }
 
     var disclaimerOK = false
-//    var sharedPreferencesTimeOut = 120 * FRAME_PERIOD_MS_DEFAULT // 60 Seconds
     var sharedPreferencesTesting = false
     fun handleTerms() {
-//         Check terms accepted
-//        try {
-            if (sharedPreferencesTesting) {
-                Log.i(TAG, "SharedPreference testing")
-                context.getSharedPreferences(APP, MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("disclaimerCheckBox", false)
-                    .apply()
-//                throw (Exception("sharedPreferences testing"))
-                sharedPreferencesTesting = false
-            }
-            disclaimerOK = context.getSharedPreferences(APP, MODE_PRIVATE)
-                .getBoolean("disclaimerCheckBox", false)
-//        } catch (ex: Exception) {
-//            Log.e(TAG, "Shared Preferences exception")
-//            sharedPreferencesTimeOut--
-//            if (sharedPreferencesTimeOut < 0) {
-//                messageHandler.setupNewMessage(messageHandler.messageDisplayForever)
-//                messageHandler.addMessage("Secure storage failed...\n please choose another watchface")
-//                messageHandler.addFontSize(messageHandler.messageTextSize)
-//            } else {
-//                messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
-//                messageHandler.addMessage("Please wait for secure storage to start...")
-//                messageHandler.addFontSize(messageHandler.messageTextSize)
-//            }
-//            return
-//        }
+        if (sharedPreferencesTesting) {
+            Log.i(TAG, "SharedPreference testing")
+            context.getSharedPreferences(APP, MODE_PRIVATE)
+                .edit()
+                .putBoolean("disclaimerCheckBox", false)
+                .apply()
+            sharedPreferencesTesting = false
+        }
+        disclaimerOK = context.getSharedPreferences(APP, MODE_PRIVATE)
+            .getBoolean("disclaimerCheckBox", false)
         Log.i(TAG, "disclaimerOK: " + disclaimerOK)
         if (disclaimerOK) {
             messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
@@ -201,12 +183,13 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
+        canvas.drawColor(Color.BLACK)
+
         // Messages
         if (!this::messageHandler.isInitialized) {
             messageHandler = Messages(canvas)
         }
 
-        canvas.drawColor(Color.BLACK)
         if (messageHandler.isMessage()) {
             messageHandler.display()
             return
