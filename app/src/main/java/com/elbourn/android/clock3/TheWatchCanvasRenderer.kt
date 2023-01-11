@@ -60,9 +60,9 @@ class TheWatchCanvasRenderer(
         */
 
         when (tapType) {
-            TapType.UP -> {}
+            TapType.UP -> processTAP()
             TapType.CANCEL -> {}
-            TapType.DOWN -> processTAP()
+            TapType.DOWN -> {}
         }
         invalidate()
     }
