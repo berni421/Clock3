@@ -47,6 +47,10 @@ class TheWatchCanvasRenderer(
 ),
     WatchFace.TapListener {
 
+    init {
+
+    }
+
     val TAG: String = javaClass.simpleName
     val APP = BuildConfig.APPLICATION_ID
 
@@ -173,7 +177,7 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
-//        TODO
+        canvas.drawColor(Color.TRANSPARENT)
     }
 
     lateinit var messageHandler: Messages
@@ -185,16 +189,16 @@ class TheWatchCanvasRenderer(
     ) {
         canvas.drawColor(Color.BLACK)
 
+
         // Messages
         if (!this::messageHandler.isInitialized) {
             messageHandler = Messages(canvas)
         }
-
         if (messageHandler.isMessage()) {
             messageHandler.display()
             return
         }
-
+        // Terms
         if (!disclaimerOK) {
             handleTerms()
             return
@@ -207,7 +211,8 @@ class TheWatchCanvasRenderer(
         val textSize = 96f
         whiteTextPaint.textSize = textSize
 
-        val current = LocalDateTime.now()
+//        val current = LocalDateTime.now()
+        val current = zonedDateTime
         lateinit var formatter: DateTimeFormatter
         if (renderParameters.drawMode == DrawMode.AMBIENT) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
