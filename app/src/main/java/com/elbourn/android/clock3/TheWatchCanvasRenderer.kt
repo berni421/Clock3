@@ -1,13 +1,12 @@
 package com.elbourn.android.clock3
 
+
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Handler
@@ -18,10 +17,10 @@ import android.view.SurfaceHolder
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.watchface.*
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
+
 
 // Default for how long each frame is displayed at expected frame rate.
 private const val FRAME_PERIOD_MS_DEFAULT: Long = 500L // half a second is fine
@@ -140,16 +139,16 @@ class TheWatchCanvasRenderer(
             .getBoolean("disclaimerCheckBox", false)
         Log.i(TAG, "disclaimerOK: " + disclaimerOK)
         if (disclaimerOK) {
-//            messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
-//            messageHandler.addMessage("Checking status...")
-//            messageHandler.addFontSize(messageHandler.messageTextSize)
-//            Handler(Looper.getMainLooper()).postDelayed({
-//                messageHandler.setupNewMessage(messageHandler.messageDisplayTime * 2)
-//                messageHandler.addMessage("Terms accepted-thank you!\n")
-//                messageHandler.addMessage(messageHandler.tapScreenText)
-//                messageHandler.addFontSize(messageHandler.messageTextSize)
-//                messageHandler.addFontSize(messageHandler.messageTextSize)
-//            }, messageHandler.messageDisplayTime)
+            messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
+            messageHandler.addMessage("Checking status...")
+            messageHandler.addFontSize(messageHandler.messageTextSize)
+            Handler(Looper.getMainLooper()).postDelayed({
+                messageHandler.setupNewMessage(messageHandler.messageDisplayTime * 2)
+                messageHandler.addMessage("Terms accepted-thank you!\n")
+                messageHandler.addMessage(messageHandler.tapScreenText)
+                messageHandler.addFontSize(messageHandler.messageTextSize)
+                messageHandler.addFontSize(messageHandler.messageTextSize)
+            }, messageHandler.messageDisplayTime)
         } else {
             messageHandler.setupNewMessage(messageHandler.messageDisplayForever)
             messageHandler.addMessage(context.getString(R.string.disclaimer_text))
@@ -173,19 +172,31 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
-//        Log.i(TAG, "start renderHighlightLayer")
-        canvas.drawColor(Color.DKGRAY)
+//        TODO
+    }
+
+    fun doWatchPreview(canvas: Canvas) {
+        val d: Drawable = context.resources.getDrawable(R.drawable.watch_preview, null)
+        d.setBounds(0, 0, canvas.width, canvas.height)
+        d.draw(canvas)
     }
 
     lateinit var messageHandler: Messages
+    var watchPreviewNeeded = 4* (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
         canvas: Canvas,
         bounds: Rect,
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
-//        Log.i(TAG, "start render")
         canvas.drawColor(Color.BLACK)
+
+        // Show preview for few seconds
+        if (watchPreviewNeeded > 0) {
+            watchPreviewNeeded--
+            doWatchPreview(canvas)
+            return
+        }
 
         // Messages
         if (!this::messageHandler.isInitialized) {
@@ -199,6 +210,7 @@ class TheWatchCanvasRenderer(
         // Terms
         if (!disclaimerOK) {
             handleTerms()
+            return
         }
 
         // Clock face main time indicator
