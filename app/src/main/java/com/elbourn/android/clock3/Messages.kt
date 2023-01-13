@@ -30,7 +30,7 @@ class Messages (val canvas: Canvas){
     var messageActiveForever = false
 
     init {
-        setupNewMessage(0)
+        setupNewMessage(-99L)
     }
 
     fun setupNewMessage(delay:Long) {

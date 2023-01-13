@@ -13,8 +13,8 @@ android {
         applicationId "com.elbourn.android.clock3"
         minSdk 28
         targetSdk 33
-        versionCode 26
-        versionName "v0.1.11 - more watch preview fixes"
+        versionCode 28
+        versionName "v0.1.13"
     }
 
     buildFeatures {

@@ -47,10 +47,6 @@ class TheWatchCanvasRenderer(
 ),
     WatchFace.TapListener {
 
-    init {
-
-    }
-
     val TAG: String = javaClass.simpleName
     val APP = BuildConfig.APPLICATION_ID
 
@@ -144,16 +140,16 @@ class TheWatchCanvasRenderer(
             .getBoolean("disclaimerCheckBox", false)
         Log.i(TAG, "disclaimerOK: " + disclaimerOK)
         if (disclaimerOK) {
-            messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
-            messageHandler.addMessage("Checking status...")
-            messageHandler.addFontSize(messageHandler.messageTextSize)
-            Handler(Looper.getMainLooper()).postDelayed({
-                messageHandler.setupNewMessage(messageHandler.messageDisplayTime * 2)
-                messageHandler.addMessage("Terms accepted-thank you!\n")
-                messageHandler.addMessage(messageHandler.tapScreenText)
-                messageHandler.addFontSize(messageHandler.messageTextSize)
-                messageHandler.addFontSize(messageHandler.messageTextSize)
-            }, messageHandler.messageDisplayTime)
+//            messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
+//            messageHandler.addMessage("Checking status...")
+//            messageHandler.addFontSize(messageHandler.messageTextSize)
+//            Handler(Looper.getMainLooper()).postDelayed({
+//                messageHandler.setupNewMessage(messageHandler.messageDisplayTime * 2)
+//                messageHandler.addMessage("Terms accepted-thank you!\n")
+//                messageHandler.addMessage(messageHandler.tapScreenText)
+//                messageHandler.addFontSize(messageHandler.messageTextSize)
+//                messageHandler.addFontSize(messageHandler.messageTextSize)
+//            }, messageHandler.messageDisplayTime)
         } else {
             messageHandler.setupNewMessage(messageHandler.messageDisplayForever)
             messageHandler.addMessage(context.getString(R.string.disclaimer_text))
@@ -177,7 +173,8 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
-        canvas.drawColor(Color.TRANSPARENT)
+//        Log.i(TAG, "start renderHighlightLayer")
+        canvas.drawColor(Color.DKGRAY)
     }
 
     lateinit var messageHandler: Messages
@@ -187,8 +184,8 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
+//        Log.i(TAG, "start render")
         canvas.drawColor(Color.BLACK)
-
 
         // Messages
         if (!this::messageHandler.isInitialized) {
@@ -198,10 +195,10 @@ class TheWatchCanvasRenderer(
             messageHandler.display()
             return
         }
+
         // Terms
         if (!disclaimerOK) {
             handleTerms()
-            return
         }
 
         // Clock face main time indicator
