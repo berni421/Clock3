@@ -18,12 +18,13 @@ import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.watchface.*
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.time.ZonedDateTime
+import java.time.ZonedDateTime.now
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 
 
 // Default for how long each frame is displayed at expected frame rate.
-private const val FRAME_PERIOD_MS_DEFAULT: Long = 500L // half a second is fine
+private const val FRAME_PERIOD_MS_DEFAULT: Long = 1000L // a second is fine
 
 /**
  * Renders watch face via data in Room database. Also, updates watch face state based on setting
@@ -181,14 +182,21 @@ class TheWatchCanvasRenderer(
         d.draw(canvas)
     }
 
+    var ambientModeTesting = false
+    var preserveUntil: ZonedDateTime = now()
     lateinit var messageHandler: Messages
-    var watchPreviewNeeded = 4* (1000 / FRAME_PERIOD_MS_DEFAULT)
+    var watchPreviewNeeded = 4 * (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
         canvas: Canvas,
         bounds: Rect,
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
+        // Handle ambient mode slow updates
+        val AmbientMode = ambientModeTesting
+            || renderParameters.drawMode == DrawMode.AMBIENT
+        val currentTime = zonedDateTime
+        if (AmbientMode && currentTime.isBefore(preserveUntil)) return
         canvas.drawColor(Color.BLACK)
 
         // Show preview for few seconds
@@ -219,16 +227,15 @@ class TheWatchCanvasRenderer(
         val whiteTextPaint = TextPaint(whitePaint)
         val textSize = 96f
         whiteTextPaint.textSize = textSize
-
-//        val current = LocalDateTime.now()
-        val current = zonedDateTime
         lateinit var formatter: DateTimeFormatter
-        if (renderParameters.drawMode == DrawMode.AMBIENT) {
+        if (AmbientMode) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
+            preserveUntil = currentTime.plusSeconds(10L)
+            Log.i(TAG, "preserveUntil: " + preserveUntil)
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
-        val time = current.format(formatter)
+        val time = currentTime.format(formatter)
         val textBounds = Rect()
         whiteTextPaint.getTextBounds(time, 0, time.length, textBounds)
         canvas.drawText(
@@ -237,14 +244,13 @@ class TheWatchCanvasRenderer(
             canvas.height / 2f + textBounds.height() / 2f,
             whiteTextPaint
         )
+        if (AmbientMode) return
 
         // Other time indicators
-        if (renderParameters.drawMode == DrawMode.AMBIENT) return
-
         val infoLines = 10
         whiteTextPaint.textSize = textSize / 2f
         formatter = DateTimeFormatter.ofPattern("EEEE")
-        val dayOfWeek = current.format(formatter)
+        val dayOfWeek = currentTime.format(formatter)
         whiteTextPaint.getTextBounds(dayOfWeek, 0, dayOfWeek.length, textBounds)
         canvas.drawText(
             dayOfWeek,
@@ -254,7 +260,7 @@ class TheWatchCanvasRenderer(
         )
 
         formatter = DateTimeFormatter.ofPattern("k")
-        val timeOfDay = textTimeName(current.format(formatter).toInt())
+        val timeOfDay = textTimeName(currentTime.format(formatter).toInt())
         whiteTextPaint.getTextBounds(timeOfDay, 0, timeOfDay.length, textBounds)
         canvas.drawText(
             timeOfDay,
@@ -264,7 +270,7 @@ class TheWatchCanvasRenderer(
         )
 
         formatter = DateTimeFormatter.ofPattern("d LLLL")
-        val month = current.format(formatter)
+        val month = currentTime.format(formatter)
         whiteTextPaint.getTextBounds(month, 0, month.length, textBounds)
         canvas.drawText(
             month,
@@ -274,7 +280,7 @@ class TheWatchCanvasRenderer(
         )
 
         formatter = DateTimeFormatter.ofPattern("yyyy")
-        val year = current.format(formatter)
+        val year = currentTime.format(formatter)
         whiteTextPaint.getTextBounds(year, 0, year.length, textBounds)
         canvas.drawText(
             year,
