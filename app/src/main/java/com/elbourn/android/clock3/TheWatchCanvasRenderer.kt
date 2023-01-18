@@ -183,7 +183,7 @@ class TheWatchCanvasRenderer(
     }
 
     var ambientModeTesting = false
-    var preserveUntil: ZonedDateTime = now()
+//    var preserveUntil: ZonedDateTime = now()
     lateinit var messageHandler: Messages
     var watchPreviewNeeded = 4 * (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
@@ -192,11 +192,15 @@ class TheWatchCanvasRenderer(
         zonedDateTime: ZonedDateTime,
         sharedAssets: TheSharedAssets
     ) {
-        // Handle ambient mode slow updates
-        val AmbientMode = ambientModeTesting
-            || renderParameters.drawMode == DrawMode.AMBIENT
+        // Current Time
         val currentTime = zonedDateTime
-        if (AmbientMode && currentTime.isBefore(preserveUntil)) return
+
+        // Handle ambient mode
+        val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT
+            || ambientModeTesting
+//        if (ambientMode && currentTime.isBefore(preserveUntil)) return
+
+        // Blank the canvas
         canvas.drawColor(Color.BLACK)
 
         // Show preview for few seconds
@@ -228,10 +232,10 @@ class TheWatchCanvasRenderer(
         val textSize = 96f
         whiteTextPaint.textSize = textSize
         lateinit var formatter: DateTimeFormatter
-        if (AmbientMode) {
+        if (ambientMode) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
-            preserveUntil = currentTime.plusSeconds(10L)
-            Log.i(TAG, "preserveUntil: " + preserveUntil)
+//            preserveUntil = currentTime.plusSeconds(10L)
+//            Log.i(TAG, "preserveUntil: " + preserveUntil)
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
@@ -244,7 +248,7 @@ class TheWatchCanvasRenderer(
             canvas.height / 2f + textBounds.height() / 2f,
             whiteTextPaint
         )
-        if (AmbientMode) return
+        if (ambientMode) return
 
         // Other time indicators
         val infoLines = 10
