@@ -18,7 +18,6 @@ import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.watchface.*
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import java.time.ZonedDateTime
-import java.time.ZonedDateTime.now
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.Executors
 
@@ -183,7 +182,6 @@ class TheWatchCanvasRenderer(
     }
 
     var ambientModeTesting = false
-//    var preserveUntil: ZonedDateTime = now()
     lateinit var messageHandler: Messages
     var watchPreviewNeeded = 4 * (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
@@ -198,7 +196,6 @@ class TheWatchCanvasRenderer(
         // Handle ambient mode
         val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT
             || ambientModeTesting
-//        if (ambientMode && currentTime.isBefore(preserveUntil)) return
 
         // Blank the canvas
         canvas.drawColor(Color.BLACK)
@@ -225,72 +222,71 @@ class TheWatchCanvasRenderer(
             return
         }
 
+        // Normal text
+        val text = TextPaint(Paint())
+        text.textSize = 96f
+        text.color = Color.WHITE
+
         // Clock face main time indicator
-        val whitePaint = Paint()
-        whitePaint.color = Color.WHITE
-        val whiteTextPaint = TextPaint(whitePaint)
-        val textSize = 96f
-        whiteTextPaint.textSize = textSize
         lateinit var formatter: DateTimeFormatter
         if (ambientMode) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
-//            preserveUntil = currentTime.plusSeconds(10L)
-//            Log.i(TAG, "preserveUntil: " + preserveUntil)
+            text.color = Color.DKGRAY
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
         val time = currentTime.format(formatter)
         val textBounds = Rect()
-        whiteTextPaint.getTextBounds(time, 0, time.length, textBounds)
+        text.getTextBounds(time, 0, time.length, textBounds)
         canvas.drawText(
             time,
             canvas.width / 2 - textBounds.width() / 2f,
             canvas.height / 2f + textBounds.height() / 2f,
-            whiteTextPaint
+            text
         )
         if (ambientMode) return
 
         // Other time indicators
         val infoLines = 10
-        whiteTextPaint.textSize = textSize / 2f
+        text.textSize = 48f
         formatter = DateTimeFormatter.ofPattern("EEEE")
         val dayOfWeek = currentTime.format(formatter)
-        whiteTextPaint.getTextBounds(dayOfWeek, 0, dayOfWeek.length, textBounds)
+        text.getTextBounds(dayOfWeek, 0, dayOfWeek.length, textBounds)
         canvas.drawText(
             dayOfWeek,
             canvas.width / 2 - textBounds.width() / 2f,
             canvas.height * 1 / infoLines + textBounds.height() / 2f,
-            whiteTextPaint
+            text
         )
 
         formatter = DateTimeFormatter.ofPattern("k")
         val timeOfDay = textTimeName(currentTime.format(formatter).toInt())
-        whiteTextPaint.getTextBounds(timeOfDay, 0, timeOfDay.length, textBounds)
+        text.getTextBounds(timeOfDay, 0, timeOfDay.length, textBounds)
         canvas.drawText(
             timeOfDay,
             canvas.width / 2 - textBounds.width() / 2f,
             canvas.height * 2 / infoLines + textBounds.height() / 2f,
-            whiteTextPaint
+            text
         )
 
         formatter = DateTimeFormatter.ofPattern("d LLLL")
         val month = currentTime.format(formatter)
-        whiteTextPaint.getTextBounds(month, 0, month.length, textBounds)
+        text.getTextBounds(month, 0, month.length, textBounds)
         canvas.drawText(
             month,
             canvas.width / 2 - textBounds.width() / 2f,
             canvas.height * (infoLines - 2) / infoLines + textBounds.height() / 2f,
-            whiteTextPaint
+            text
         )
 
         formatter = DateTimeFormatter.ofPattern("yyyy")
         val year = currentTime.format(formatter)
-        whiteTextPaint.getTextBounds(year, 0, year.length, textBounds)
+        text.getTextBounds(year, 0, year.length, textBounds)
         canvas.drawText(
             year,
             canvas.width / 2 - textBounds.width() / 2f,
             canvas.height * (infoLines - 1) / infoLines + textBounds.height() / 2f,
-            whiteTextPaint
+            text
         )
 
     }

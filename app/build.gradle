@@ -13,8 +13,8 @@ android {
         applicationId "com.elbourn.android.clock3"
         minSdk 28
         targetSdk 33
-        versionCode 32
-        versionName "v0.1.17"
+        versionCode 33
+        versionName "v0.1.18"
     }
 
     buildFeatures {
@@ -27,10 +27,12 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
-
     packagingOptions {
-        exclude "META-INF/atomicfu.kotlin_module"
+        resources {
+            excludes += ['META-INF/atomicfu.kotlin_module']
+        }
     }
+
 
     compileOptions {
         sourceCompatibility = 1.8
