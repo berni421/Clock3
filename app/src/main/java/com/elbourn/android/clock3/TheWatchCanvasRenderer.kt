@@ -5,7 +5,10 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.BatteryManager
@@ -14,6 +17,7 @@ import android.os.Looper
 import android.text.TextPaint
 import android.util.Log
 import android.view.SurfaceHolder
+import androidx.core.content.res.ResourcesCompat
 import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.watchface.*
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -176,14 +180,18 @@ class TheWatchCanvasRenderer(
     }
 
     fun doWatchPreview(canvas: Canvas) {
-        val d: Drawable = context.resources.getDrawable(R.drawable.watch_preview, null)
-        d.setBounds(0, 0, canvas.width, canvas.height)
+        val d: Drawable? = ResourcesCompat.getDrawable(
+            context.resources,
+            R.drawable.watch_preview,
+            null
+        )
+        d!!.setBounds(0, 0, canvas.width, canvas.height)
         d.draw(canvas)
     }
 
     var ambientModeTesting = false
     lateinit var messageHandler: Messages
-    var watchPreviewNeeded = 4 * (1000 / FRAME_PERIOD_MS_DEFAULT)
+    var watchPreviewNeeded = 5 * (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
         canvas: Canvas,
         bounds: Rect,
@@ -231,7 +239,7 @@ class TheWatchCanvasRenderer(
         lateinit var formatter: DateTimeFormatter
         if (ambientMode) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
-            text.color = Color.DKGRAY
+            text.color = Color.GRAY
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
@@ -294,9 +302,9 @@ class TheWatchCanvasRenderer(
     fun textTimeName(hour: Int): String {
         var t = "error"
         if (hour <= 4) t = "early"
-        if (hour > 4 && hour <= 11) t = "morning"
-        if (hour > 11 && hour <= 18) t = "afternoon"
-        if (hour > 18 && hour <= 21) t = "evening"
+        if (hour in (5..11))  t = "morning"
+        if (hour in (12..18)) t = "afternoon"
+        if (hour in (19..21)) t = "evening"
         if (hour > 21) t = "late"
         return t
     }
