@@ -189,7 +189,10 @@ class TheWatchCanvasRenderer(
         d.draw(canvas)
     }
 
-    var ambientModeTesting = false
+    val ambientModeTesting = false
+    val ambientModeTime = 60
+    val ambientModeLag = 56
+    var ambientModeTimer = 0
     lateinit var messageHandler: Messages
     var watchPreviewNeeded = 5 * (1000 / FRAME_PERIOD_MS_DEFAULT)
     override fun render(
@@ -202,8 +205,15 @@ class TheWatchCanvasRenderer(
         val currentTime = zonedDateTime
 
         // Handle ambient mode
-        val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT
-            || ambientModeTesting
+//        Log.i(TAG, "ambientModeTimer: $ambientModeTimer" )
+        val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT || ambientModeTesting
+        if (ambientMode && ambientModeTimer > 0) {
+            ambientModeTimer--
+            if (ambientModeTimer < ambientModeLag) {
+//                Log.i(TAG, "ambient mode")
+                return
+            }
+        }
 
         // Blank the canvas
         canvas.drawColor(Color.BLACK)
@@ -240,6 +250,9 @@ class TheWatchCanvasRenderer(
         if (ambientMode) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
             text.color = Color.GRAY
+            if (ambientModeTimer <= 0) {
+                ambientModeTimer = ambientModeTime
+            }
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
@@ -252,7 +265,11 @@ class TheWatchCanvasRenderer(
             canvas.height / 2f + textBounds.height() / 2f,
             text
         )
-        if (ambientMode) return
+
+        if (ambientMode) {
+//            Log.i(TAG, "Ambient mode update complete")
+            return
+        }
 
         // Other time indicators
         val infoLines = 10

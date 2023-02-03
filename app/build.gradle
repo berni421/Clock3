@@ -13,8 +13,8 @@ android {
         applicationId "com.elbourn.android.clock3"
         minSdk 28
         targetSdk 33
-        versionCode 34
-        versionName "v0.1.19"
+        versionCode 35
+        versionName "v0.1.20"
     }
 
     buildFeatures {
