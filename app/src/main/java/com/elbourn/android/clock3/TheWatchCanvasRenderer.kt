@@ -189,10 +189,9 @@ class TheWatchCanvasRenderer(
         d.draw(canvas)
     }
 
-    val ambientModeTesting = true
+    val ambientModeTesting = false
     lateinit var messageHandler: Messages
     var watchPreviewNeeded = 5 * (1000 / FRAME_PERIOD_MS_DEFAULT)
-    var ignoreAmbient = 60
     override fun render(
         canvas: Canvas,
         bounds: Rect,
@@ -204,13 +203,6 @@ class TheWatchCanvasRenderer(
 
         // Handle ambient mode
         val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT || ambientModeTesting
-        val ambientModeUpdate = (currentTime.second % 30 == 0)
-        if (ignoreAmbient > 0 ) ignoreAmbient--
-        val ambientModeON = (ambientMode && !ambientModeUpdate && ignoreAmbient <= 0)
-        if (ambientModeON) {
-//            Log.i(TAG, "ambient mode ON")
-            return
-        }
 
         // Blank the canvas
         canvas.drawColor(Color.BLACK)
@@ -242,14 +234,12 @@ class TheWatchCanvasRenderer(
         text.textSize = 96f
         text.color = Color.WHITE
 
-        // Clock face main time indicator
-        lateinit var formatter: DateTimeFormatter
-        if (ambientModeUpdate) {
-            formatter = DateTimeFormatter.ofPattern("HH:mm")
+        if (ambientMode) {
             text.color = Color.GRAY
-        } else {
-            formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
+
+        // Clock face main time indicator
+        var formatter = DateTimeFormatter.ofPattern("HH:mm")
         val time = currentTime.format(formatter)
         val textBounds = Rect()
         text.getTextBounds(time, 0, time.length, textBounds)
@@ -259,8 +249,20 @@ class TheWatchCanvasRenderer(
             canvas.height / 2f + textBounds.height() / 2f,
             text
         )
+        if (!ambientMode) {
+            // Display seconds
+            text.textSize = 36f
+            formatter = DateTimeFormatter.ofPattern(" :ss")
+            val seconds = currentTime.format(formatter)
+            canvas.drawText(
+                seconds,
+                canvas.width / 2 + textBounds.width() / 2f,
+                canvas.height / 2f + textBounds.height() / 2f,
+                text
+            )
+        }
 
-        if (ambientModeUpdate) {
+        if (ambientMode) {
 //            Log.i(TAG, "Ambient mode update complete")
             return
         }
