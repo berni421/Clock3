@@ -74,7 +74,7 @@ class TheWatchCanvasRenderer(
     var touchTimeElapsed = 0L
 
     fun processTAP() {
-        Log.i(TAG, "start processTAP")
+//        Log.i(TAG, "start processTAP")
         if (!disclaimerOK) {
             messageHandler.removeMessage()
             context.getSharedPreferences(APP, MODE_PRIVATE)
@@ -132,7 +132,7 @@ class TheWatchCanvasRenderer(
     var sharedPreferencesTesting = false
     fun handleTerms() {
         if (sharedPreferencesTesting) {
-            Log.i(TAG, "SharedPreference testing")
+//            Log.i(TAG, "SharedPreference testing")
             context.getSharedPreferences(APP, MODE_PRIVATE)
                 .edit()
                 .putBoolean("disclaimerCheckBox", false)
@@ -141,7 +141,7 @@ class TheWatchCanvasRenderer(
         }
         disclaimerOK = context.getSharedPreferences(APP, MODE_PRIVATE)
             .getBoolean("disclaimerCheckBox", false)
-        Log.i(TAG, "disclaimerOK: " + disclaimerOK)
+//        Log.i(TAG, "disclaimerOK: " + disclaimerOK)
         if (disclaimerOK) {
             messageHandler.setupNewMessage(messageHandler.messageDisplayTime)
             messageHandler.addMessage("Checking status...")
@@ -189,12 +189,10 @@ class TheWatchCanvasRenderer(
         d.draw(canvas)
     }
 
-    val ambientModeTesting = false
-    val ambientModeTime = 60
-    val ambientModeLag = 56
-    var ambientModeTimer = 0
+    val ambientModeTesting = true
     lateinit var messageHandler: Messages
     var watchPreviewNeeded = 5 * (1000 / FRAME_PERIOD_MS_DEFAULT)
+    var ignoreAmbient = 60
     override fun render(
         canvas: Canvas,
         bounds: Rect,
@@ -205,14 +203,13 @@ class TheWatchCanvasRenderer(
         val currentTime = zonedDateTime
 
         // Handle ambient mode
-//        Log.i(TAG, "ambientModeTimer: $ambientModeTimer" )
         val ambientMode = renderParameters.drawMode == DrawMode.AMBIENT || ambientModeTesting
-        if (ambientMode && ambientModeTimer > 0) {
-            ambientModeTimer--
-            if (ambientModeTimer < ambientModeLag) {
-//                Log.i(TAG, "ambient mode")
-                return
-            }
+        val ambientModeUpdate = (currentTime.second % 30 == 0)
+        if (ignoreAmbient > 0 ) ignoreAmbient--
+        val ambientModeON = (ambientMode && !ambientModeUpdate && ignoreAmbient <= 0)
+        if (ambientModeON) {
+//            Log.i(TAG, "ambient mode ON")
+            return
         }
 
         // Blank the canvas
@@ -247,12 +244,9 @@ class TheWatchCanvasRenderer(
 
         // Clock face main time indicator
         lateinit var formatter: DateTimeFormatter
-        if (ambientMode) {
+        if (ambientModeUpdate) {
             formatter = DateTimeFormatter.ofPattern("HH:mm")
             text.color = Color.GRAY
-            if (ambientModeTimer <= 0) {
-                ambientModeTimer = ambientModeTime
-            }
         } else {
             formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         }
@@ -266,7 +260,7 @@ class TheWatchCanvasRenderer(
             text
         )
 
-        if (ambientMode) {
+        if (ambientModeUpdate) {
 //            Log.i(TAG, "Ambient mode update complete")
             return
         }
